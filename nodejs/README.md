@@ -51,7 +51,7 @@ GAME_DIR=/path/to/game npm start
 | `SOUND_FONT` | – | sound font used when the game has no `music/mid.sf2` (the Docker image falls back to the General MIDI font installed with FluidSynth) |
 | `PORT` / `HOST` | `8080` / `0.0.0.0` | listen address |
 
-All the options of `kysmod.ini` work as in the desktop version.
+All the options of `kysmod.ini` work as in the desktop version, except `battle_presentation` (the paper presentation is not available).
 
 ## Controls
 

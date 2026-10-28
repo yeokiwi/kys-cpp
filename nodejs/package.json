@@ -1,0 +1,15 @@
+{
+  "name": "kys-nodejs",
+  "version": "1.0.0",
+  "description": "kys-cpp ported to a Node.js web application (browser client + Node.js server)",
+  "type": "module",
+  "private": true,
+  "license": "BSD-3-Clause",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server/server.js",
+    "test": "node --disable-warning=ExperimentalWarning --test test/"
+  }
+}

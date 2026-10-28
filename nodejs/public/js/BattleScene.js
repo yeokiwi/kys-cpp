@@ -14,7 +14,7 @@ import { Font } from './Font.js';
 import { GameUtil } from './GameUtil.js';
 import { Head } from './Head.js';
 import * as K from './Keys.js';
-import { Point, Towards_None } from './Point.js';
+import { Point, Pointf, Towards_None } from './Point.js';
 import { NodePass } from './RunNode.js';
 import { Save } from './Save.js';
 import { Scene, TILE_W_0 } from './Scene.js';
@@ -2150,6 +2150,20 @@ export class BattleScene extends Scene {
                 }
             }
         }
+    }
+
+    // 45 degree map coordinates to orthogonal (real time battles)
+    pos45To90(x, y) {
+        const TILE_W = Scene.TILE_W;
+        return new Pointf(-y * TILE_W + x * TILE_W + this.COORD_COUNT * TILE_W, y * TILE_W + x * TILE_W);
+    }
+
+    pos90To45(x, y) {
+        const TILE_W = Scene.TILE_W;
+        x -= this.COORD_COUNT * TILE_W;
+        // std::round rounds halves away from zero
+        const round = (v) => Math.sign(v) * Math.round(Math.abs(v));
+        return new Point(round((x / TILE_W + y / TILE_W) / 2), round((-x / TILE_W + y / TILE_W) / 2));
     }
 
     // the whole ground of the battle field in one texture

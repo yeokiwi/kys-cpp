@@ -134,7 +134,7 @@ for (const n of [153, 154]) {
     title.set(n, { data: png(1280, 400, (x, y) => [20 + (y >> 2), 30, 60 + (x >> 4), 255]) });
 }
 title.set(201, { data: png(16, 16, (x, y) => [255, 255, 255, Math.max(0, 255 - ((x - 8) ** 2 + (y - 8) ** 2) * 4)]) });
-title.set(203, { data: rect(100, 4, [255, 255, 255]) });
+title.set(203, { data: png(100, 8, (x, y) => [255, 255, 255, Math.max(0, 200 - Math.abs(y - 3.5) * 50 - Math.abs(x - 49.5) * 3) | 0]) });
 for (const n of [300, 302, 304, 306, 308, 310, 312]) {
     title.set(n, { data: rect(80, 80, hue(n), [255, 255, 255], 160) });
 }

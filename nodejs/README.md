@@ -31,6 +31,10 @@ KYS_GAME_DIR=/path/to/game docker compose up -d
 
 `KYS_PORT`, `KYS_UID` and `KYS_GID` change the published port and the user of the server. Rendered music is kept in the `kys-cache` volume.
 
+## Deploy on a server
+
+[`deploy/digitalocean`](deploy/digitalocean/README.md) installs the game on a DigitalOcean droplet (or any Ubuntu server) with HTTPS, password protection and a firewall, in one script.
+
 ## Run without Docker
 
 Node.js 22.13 or newer is required (the server uses the built-in `node:sqlite` module). Install FluidSynth to hear MIDI music.
@@ -50,6 +54,7 @@ GAME_DIR=/path/to/game npm start
 | `CACHE_DIR` | `/tmp/kys-cache` (`/cache` in Docker) | MIDI music rendered by FluidSynth |
 | `SOUND_FONT` | – | sound font used when the game has no `music/mid.sf2` (the Docker image falls back to the General MIDI font installed with FluidSynth) |
 | `PORT` / `HOST` | `8080` / `0.0.0.0` | listen address |
+| `AUTH_USER` / `AUTH_PASSWORD` | – | when `AUTH_PASSWORD` is set, the server asks for this user name and password (HTTP basic authentication); `/healthz` stays open for health checks |
 
 All the options of `kysmod.ini` work as in the desktop version, except `battle_presentation` (the paper presentation is not available).
 

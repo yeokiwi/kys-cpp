@@ -1,0 +1,23 @@
+#cloud-config
+# User data for a new DigitalOcean droplet (Ubuntu 24.04): installs and starts
+# the kys-cpp web server on the first boot. Edit the three values below, then
+# paste this file into "Advanced options > Add initialized data" when creating
+# the droplet, or pass it to doctl with --user-data-file.
+# Progress is logged to /var/log/kys-setup.log on the droplet.
+runcmd:
+  - - bash
+    - -c
+    - |
+      set -e
+      export HOME=/root
+      # domain name pointing to the droplet (leave empty for plain HTTP on its IP)
+      export KYS_DOMAIN=""
+      # password for the game; leave empty to have one generated (see the log)
+      export KYS_AUTH_PASSWORD=""
+      # repository and branch to deploy
+      export KYS_REPO="https://github.com/yeokiwi/kys-cpp.git"
+      export KYS_BRANCH="master"
+      apt-get update -q && apt-get install -y -q git
+      git clone --depth 1 --filter=blob:none --sparse --branch "$KYS_BRANCH" "$KYS_REPO" /opt/kys/src
+      git -C /opt/kys/src sparse-checkout set nodejs
+      bash /opt/kys/src/nodejs/deploy/digitalocean/setup.sh > /var/log/kys-setup.log 2>&1

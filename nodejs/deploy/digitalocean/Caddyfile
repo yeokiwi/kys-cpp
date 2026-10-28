@@ -1,0 +1,9 @@
+# KYS_SITE is the domain name (HTTPS with a Let's Encrypt certificate) or ":80".
+{$KYS_SITE} {
+	encode zstd gzip
+	reverse_proxy kys:8080
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy same-origin
+	}
+}

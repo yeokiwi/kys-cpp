@@ -1,5 +1,6 @@
 // kys-cpp web server: serves the browser game client, the game resources of a
 // kys-cpp game directory (mounted at GAME_DIR), save slots and configuration.
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
@@ -18,6 +19,9 @@ const CACHE_DIR = path.resolve(process.env.CACHE_DIR || path.join(process.env.TM
 const PORT = Number(process.env.PORT || 8080);
 const HOST = process.env.HOST || '0.0.0.0';
 const MAX_BODY = 64 * 1024 * 1024;
+// optional HTTP basic authentication for servers reachable from the internet
+const AUTH_USER = process.env.AUTH_USER || '';
+const AUTH_PASSWORD = process.env.AUTH_PASSWORD || '';
 
 const resources = new ResourceStore(GAME_DIR);
 const saves = new SaveStore(SAVE_DIR);
@@ -275,12 +279,46 @@ async function handleApi(req, res, url) {
     send(res, 404, 'Not found');
 }
 
+function sameText(a, b) {
+    const ha = crypto.createHash('sha256').update(a).digest();
+    const hb = crypto.createHash('sha256').update(b).digest();
+    return crypto.timingSafeEqual(ha, hb);
+}
+
+function authorized(req) {
+    if (!AUTH_PASSWORD) {
+        return true;
+    }
+    const m = /^Basic\s+(\S+)$/i.exec(req.headers.authorization || '');
+    if (!m) {
+        return false;
+    }
+    const text = Buffer.from(m[1], 'base64').toString('utf8');
+    const i = text.indexOf(':');
+    if (i < 0) {
+        return false;
+    }
+    // evaluate both comparisons to keep the timing independent of the user name
+    const user_ok = sameText(text.slice(0, i), AUTH_USER);
+    const password_ok = sameText(text.slice(i + 1), AUTH_PASSWORD);
+    return (!AUTH_USER || user_ok) && password_ok;
+}
+
 const server = http.createServer(async (req, res) => {
     let url;
     try {
         url = new URL(req.url, 'http://localhost');
     } catch {
         send(res, 400, 'Bad request');
+        return;
+    }
+    // health check for Docker and load balancers, never protected
+    if (url.pathname === '/healthz') {
+        send(res, 200, 'ok');
+        return;
+    }
+    if (!authorized(req)) {
+        send(res, 401, 'Authentication required', 'text/plain; charset=utf-8', { 'WWW-Authenticate': 'Basic realm="kys-cpp", charset="UTF-8"' });
         return;
     }
     try {
@@ -324,6 +362,7 @@ server.listen(PORT, HOST, () => {
     console.log(`kys-cpp web server listening on http://${HOST}:${PORT}`);
     console.log(`Game directory: ${GAME_DIR}${fs.existsSync(path.join(GAME_DIR, 'resource')) ? '' : ' (WARNING: resource/ not found)'}`);
     console.log(`Save directory: ${SAVE_DIR}`);
+    console.log(AUTH_PASSWORD ? 'Password protection enabled' : 'No password protection (set AUTH_PASSWORD to enable it)');
 });
 
 for (const sig of ['SIGINT', 'SIGTERM']) {

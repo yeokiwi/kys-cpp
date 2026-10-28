@@ -4,3 +4,4 @@ test
 Dockerfile
 docker-compose.yml
 game
+deploy

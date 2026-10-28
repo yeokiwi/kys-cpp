@@ -1,0 +1,52 @@
+# Production stack for a DigitalOcean droplet (see README.md in this folder):
+# the game server behind Caddy, which serves HTTPS with automatic Let's Encrypt
+# certificates when KYS_DOMAIN is set, or plain HTTP on port 80 otherwise.
+# Settings come from the env file written by setup.sh (/opt/kys/kys.env).
+name: kys
+
+services:
+  kys:
+    build:
+      context: ../..
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:24-bookworm-slim}
+    image: kys-cpp-web
+    environment:
+      AUTH_USER: ${KYS_AUTH_USER:-}
+      AUTH_PASSWORD: ${KYS_AUTH_PASSWORD:-}
+    volumes:
+      # game resources, saves and settings; must be writable by uid 1000
+      - "${KYS_GAME_DIR:-/opt/kys/game}:/game"
+      - kys-cache:/cache
+    user: "1000:1000"
+    # only reachable through Caddy
+    expose:
+      - "8080"
+    restart: unless-stopped
+    logging:
+      driver: local
+
+  caddy:
+    image: ${CADDY_IMAGE:-caddy:2}
+    depends_on:
+      kys:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      # a domain name gets HTTPS; ":80" serves plain HTTP on the droplet's IP
+      KYS_SITE: ${KYS_DOMAIN:-:80}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    restart: unless-stopped
+    logging:
+      driver: local
+
+volumes:
+  kys-cache:
+  caddy-data:
+  caddy-config:

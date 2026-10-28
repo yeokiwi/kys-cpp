@@ -118,6 +118,13 @@ export class TextureGroup {
             return this.promise_;
         }
         this.inited_ = 1;
+        if (!this.path) {
+            this.ext = '.png';
+            this.group_ = [];
+            this.inited_ = 2;
+            this.promise_ = Promise.resolve(this);
+            return this.promise_;
+        }
         const q = new URLSearchParams({ g: this.path });
         if (loadFromPath) {
             q.set('dir', '1');

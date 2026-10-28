@@ -99,6 +99,7 @@ class EngineImpl {
         this.touch_pinch_scale_ = 1;
         this.touch_camera_pan_ = { x: 0, y: 0 };
         this.text_input_ = false;
+        this.touches_ = new Map();
         this.inited_ = false;
         this.watchers_ = [];
     }
@@ -1156,7 +1157,21 @@ class EngineImpl {
         const c = this.canvas;
         c.tabIndex = 0;
         const sdlButton = (b) => (b === 0 ? K.BUTTON_LEFT : b === 1 ? K.BUTTON_MIDDLE : b === 2 ? K.BUTTON_RIGHT : b + 1);
+        const track = (e, down) => {
+            if (e.pointerType !== 'touch') {
+                return;
+            }
+            if (down) {
+                const [x, y] = this.canvasPoint(e);
+                this.touches_.set(e.pointerId, { x, y });
+            } else {
+                this.touches_.delete(e.pointerId);
+            }
+        };
         c.addEventListener('pointermove', (e) => {
+            if (this.touches_.has(e.pointerId)) {
+                track(e, true);
+            }
             const [x, y] = this.canvasPoint(e);
             this.mouse_.x = x;
             this.mouse_.y = y;
@@ -1164,6 +1179,7 @@ class EngineImpl {
         });
         c.addEventListener('pointerdown', (e) => {
             c.focus();
+            track(e, true);
             const [x, y] = this.canvasPoint(e);
             this.mouse_.x = x;
             this.mouse_.y = y;
@@ -1181,6 +1197,7 @@ class EngineImpl {
             e.preventDefault();
         });
         const up = (e) => {
+            track(e, false);
             const [x, y] = this.canvasPoint(e);
             this.mouse_.x = x;
             this.mouse_.y = y;
@@ -1194,6 +1211,7 @@ class EngineImpl {
         };
         c.addEventListener('pointerup', up);
         c.addEventListener('pointercancel', (e) => {
+            track(e, false);
             this.mouse_.buttons = 0;
             if (e.pointerType === 'touch') {
                 this.pushEventInternal({ type: K.EVENT_FINGER_UP, tfinger: this.fingerData(e) });
@@ -1303,6 +1321,11 @@ class EngineImpl {
             x: (e.clientX - rect.left) / Math.max(1, rect.width),
             y: (e.clientY - rect.top) / Math.max(1, rect.height),
         };
+    }
+
+    // active touch points in window (canvas pixel) coordinates
+    getTouchPoints() {
+        return [...this.touches_.values()];
     }
 
     startTextInput() {

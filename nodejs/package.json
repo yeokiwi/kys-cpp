@@ -10,6 +10,6 @@
   },
   "scripts": {
     "start": "node --disable-warning=ExperimentalWarning server/server.js",
-    "test": "node --disable-warning=ExperimentalWarning --test test/"
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js"
   }
 }

@@ -57,6 +57,12 @@ class SaveImpl {
         this.submap_infos_by_name_ = new Map();
         this.ZIP_SAVE = 1;
         this.DB_SD = 0;
+        Object.assign(this, {
+            MaxLevel: 30, MaxHP: 999, MaxMP: 999, MaxPhysicalPower: 100, MaxPosion: 100, MaxAttack: 100,
+            MaxDefence: 100, MaxSpeed: 100, MaxMedicine: 100, MaxUsePoison: 100, MaxDetoxification: 100,
+            MaxAntiPoison: 100, MaxFist: 100, MaxSword: 100, MaxKnife: 100, MaxUnusual: 100, MaxHiddenWeapon: 100,
+            MaxKnowledge: 100, MaxMorality: 100, MaxAttackWithPoison: 100, MaxFame: 999, MaxIQ: 100, MaxExp: 99999,
+        });
     }
 
     setZipSave(v) {

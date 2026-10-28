@@ -1132,3 +1132,41 @@ export class Shop {
         this.Price = zeros(SHOP_ITEM_COUNT);
     }
 }
+
+// Byte offset -> field path inside the C++ structs, for script/event code that
+// addresses save data by offset (instruct_50 16/17 and Get/Set by index).
+const OFFSET_MAPS = {
+    Role: layoutOffsets(ROLE_LAYOUT),
+    Item: layoutOffsets(ITEM_LAYOUT),
+    SubMapInfo: layoutOffsets(SUBMAP_LAYOUT),
+    Magic: layoutOffsets(MAGIC_LAYOUT),
+    Shop: layoutOffsets(SHOP_LAYOUT),
+};
+const REVERSE_OFFSET_MAPS = {};
+for (const [k, m] of Object.entries(OFFSET_MAPS)) {
+    REVERSE_OFFSET_MAPS[k] = new Map([...m].map(([path, off]) => [off, path]));
+}
+
+export function structFieldAt(type, byteOffset) {
+    const m = REVERSE_OFFSET_MAPS[type];
+    return m ? m.get(byteOffset) ?? null : null;
+}
+
+export function getStructInt(obj, type, byteOffset) {
+    const path = structFieldAt(type, byteOffset);
+    if (!obj || !path) {
+        return 0;
+    }
+    const v = getPath(obj, path);
+    return typeof v === 'number' ? v : 0;
+}
+
+export function setStructInt(obj, type, byteOffset, v) {
+    const path = structFieldAt(type, byteOffset);
+    if (!obj || !path) {
+        return;
+    }
+    if (typeof getPath(obj, path) === 'number') {
+        setPath(obj, path, v | 0);
+    }
+}

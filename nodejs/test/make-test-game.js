@@ -452,6 +452,21 @@ for (let b = 0; b < 2; b++) {
     }
 }
 fs.writeFileSync(path.join(out, 'resource', 'war.sta'), sta);
+// music: a short MIDI melody (rendered by the server with FluidSynth)
+{
+    const events = [];
+    for (const note of [60, 64, 67, 72]) {
+        events.push(0x00, 0x90, note, 0x60, 0x60, 0x80, note, 0x40);
+    }
+    events.push(0x00, 0xff, 0x2f, 0x00);
+    const track = Buffer.from(events);
+    const header = Buffer.from([0x4d, 0x54, 0x68, 0x64, 0, 0, 0, 6, 0, 0, 0, 1, 0, 96]);
+    const len = Buffer.alloc(4);
+    len.writeUInt32BE(track.length);
+    fs.mkdirSync(path.join(out, 'music'), { recursive: true });
+    fs.writeFileSync(path.join(out, 'music', '1.mid'), Buffer.concat([header, Buffer.from('MTrk'), len, track]));
+}
+
 // font: any CJK font found on the system (the game ships its own)
 for (const f of ['/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc', '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc']) {
     if (fs.existsSync(f)) {

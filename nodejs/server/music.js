@@ -35,7 +35,13 @@ export class MusicStore {
     constructor(gameDir, cacheDir) {
         this.musicDir = path.join(gameDir, 'music');
         this.cacheDir = path.join(cacheDir, 'music');
-        this.soundFont = path.join(this.musicDir, 'mid.sf2');
+        // the game's sound font, else SOUND_FONT, else the system's General MIDI font
+        this.soundFonts = [path.join(this.musicDir, 'mid.sf2'), process.env.SOUND_FONT,
+            '/usr/share/sounds/sf2/default-GM.sf2', '/usr/share/sounds/sf2/FluidR3_GM.sf2'].filter(Boolean);
+    }
+
+    soundFont() {
+        return this.soundFonts.find((f) => fs.existsSync(f)) || null;
     }
 
     // Returns [file, mime] or null.
@@ -67,22 +73,23 @@ export class MusicStore {
                 // not cached yet
             }
         }
-        if (!fs.existsSync(this.soundFont)) {
-            console.log(`Sound font ${this.soundFont} not found, cannot render ${mid}`);
+        const sf = this.soundFont();
+        if (!sf) {
+            console.log(`No sound font found (music/mid.sf2 or SOUND_FONT), cannot render ${mid}`);
             return null;
         }
         if (!pending.has(mid)) {
             pending.set(mid, (async () => {
                 fs.mkdirSync(this.cacheDir, { recursive: true });
                 const tmp = ogg + '.tmp.ogg';
-                if (await run('fluidsynth', ['-ni', '-q', '-g', '1.0', '-r', '44100', '-T', 'oga', '-F', tmp, this.soundFont, mid])
+                if (await run('fluidsynth', ['-ni', '-q', '-g', '1.0', '-r', '44100', '-T', 'oga', '-F', tmp, sf, mid])
                     && fs.existsSync(tmp) && fs.statSync(tmp).size > 0) {
                     fs.renameSync(tmp, ogg);
                     return [ogg, 'audio/ogg'];
                 }
                 fs.rmSync(tmp, { force: true });
                 const tmpWav = wav + '.tmp.wav';
-                if (await run('fluidsynth', ['-ni', '-q', '-g', '1.0', '-r', '22050', '-T', 'wav', '-F', tmpWav, this.soundFont, mid])
+                if (await run('fluidsynth', ['-ni', '-q', '-g', '1.0', '-r', '22050', '-T', 'wav', '-F', tmpWav, sf, mid])
                     && fs.existsSync(tmpWav) && fs.statSync(tmpWav).size > 0) {
                     fs.renameSync(tmpWav, wav);
                     return [wav, 'audio/wav'];

@@ -48,6 +48,7 @@ GAME_DIR=/path/to/game npm start
 | `SAVE_DIR` | `$GAME_DIR/save` | save slots |
 | `CONFIG_FILE` | `$GAME_DIR/config/kysmod.ini` | game settings, edited by the in-game settings menu |
 | `CACHE_DIR` | `/tmp/kys-cache` (`/cache` in Docker) | MIDI music rendered by FluidSynth |
+| `SOUND_FONT` | – | sound font used when the game has no `music/mid.sf2` (the Docker image falls back to the General MIDI font installed with FluidSynth) |
 | `PORT` / `HOST` | `8080` / `0.0.0.0` | listen address |
 
 All the options of `kysmod.ini` work as in the desktop version.

@@ -70,6 +70,10 @@ Linux下编译参考doc目录中的文档。需注意没有联机对战部分。
 
 简繁转换的词汇表取自OpenCC，但因为这个库的依赖太复杂，没有直接使用，而是自编了一个SimpleCC代替。
 
+## 网页版（Node.js + Docker）
+
+`nodejs` 目录中是移植到网页的版本：游戏在浏览器中运行，由 Node.js 服务器提供资源与存档，可以用 Docker 部署，存档与桌面版通用。详见 [nodejs/README.md](nodejs/README.md)。
+
 ## 授权
 
 以下文本，若中文和英文存在冲突，则以中文为准。

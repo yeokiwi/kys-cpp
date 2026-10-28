@@ -41,7 +41,7 @@ export class UIConfig extends Menu {
         this.addOption('戰鬥音效', 'music', 'volumewav', volume);
         this.addOption('戰鬥模式', 'game', 'battle_mode', ['回合制', '半即時', '黑帝斯', '隻狼']);
         this.addOption('遠征隊規則', 'game', 'expedition33', ['關閉', '開啟']);
-        this.addOption('戰鬥畫法', 'game', 'battle_presentation', ['經典', '紙片']);
+        // the paper (3D) presentation of the desktop version is not available in the browser
         this.addOption('格擋輔助', 'game', 'easy_block', ['關閉', '開啟']);
         this.addOption('直接勝利', 'game', 'battle_debug_win', ['關閉', '開啟']);
         this.addOption('文字顯示', 'game', 'simplified_chinese', ['繁體', '簡體']);

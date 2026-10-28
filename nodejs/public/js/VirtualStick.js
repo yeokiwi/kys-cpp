@@ -1,7 +1,6 @@
 // VirtualStick: on-screen gamepad for touch screens (VirtualStick.cpp)
 import { C, RI } from './Color.js';
 import { Engine } from './Engine.js';
-import { GameUtil } from './GameUtil.js';
 import * as K from './Keys.js';
 import { NodeNormal, NodePress, RunNode } from './RunNode.js';
 import { ShowExp } from './ShowExp.js';
@@ -101,7 +100,7 @@ export class VirtualStick extends RunNode {
         const show_exp = RunNode.getPointerFromRoot(ShowExp);
         const is_action = battle_act !== null;
         const is_paper = is_action && battle_act.usePaperPresentation();
-        const is_turn_based_paper = battle && !is_action && GameUtil.getInt('game', 'battle_presentation', 0) !== 0;
+        const is_turn_based_paper = battle && !is_action && battle.usePaperPresentation();
         const is_any_paper = is_paper || is_turn_based_paper;
         const is_menu_active = RunNode.getPointerFromRoot(MenuText) !== null;
         this.setStyle(is_action ? 1 : 0);

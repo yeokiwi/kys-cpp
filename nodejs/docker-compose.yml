@@ -1,0 +1,18 @@
+# Usage: put the kys-cpp game resources in ./game (or set KYS_GAME_DIR),
+# then run `docker compose up -d` and open http://localhost:8080
+services:
+  kys:
+    build: .
+    image: kys-cpp-web
+    ports:
+      - "${KYS_PORT:-8080}:8080"
+    volumes:
+      # the game directory must be writable for saves and settings
+      - "${KYS_GAME_DIR:-./game}:/game"
+      - kys-cache:/cache
+    # the server runs as this user; it must be able to write the save/ and config/ folders
+    user: "${KYS_UID:-1000}:${KYS_GID:-1000}"
+    restart: unless-stopped
+
+volumes:
+  kys-cache:
